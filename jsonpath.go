@@ -116,7 +116,7 @@ func SetKeepNilAsNull(data interface{}, path string, value interface{}) error {
 }
 
 // Set value on data at that json path
-func set(data interface{}, path string, value interface{}, setNil bool) error {
+func set(data interface{}, path string, value interface{}, keepNilAsNull bool) error {
 	tokens, err := tokenizePath(path)
 	if err != nil {
 		return nil
@@ -173,7 +173,7 @@ func set(data interface{}, path string, value interface{}, setNil bool) error {
 
 	switch reflect.ValueOf(child).Kind() {
 	case reflect.Map:
-		if value == nil && setNil {
+		if value == nil && keepNilAsNull {
 			var nilvalue interface{}
 			reflect.ValueOf(child).SetMapIndex(reflect.ValueOf(last), reflect.ValueOf(&nilvalue).Elem())
 		} else {
