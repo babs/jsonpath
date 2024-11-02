@@ -109,10 +109,10 @@ func TestJSON(t *testing.T) {
 	"pet": {
 		"name": "baxter",
 		"owner": {
-      "name": "john doe",
-      "contact": {
-			  "phone": "859-289-9290"
-      }
+		"name": "john doe",
+			"contact": {
+				"phone": "859-289-9290"
+			}
 		},
 		"type": "dog",
     "age": "4"
@@ -190,5 +190,39 @@ func TestErrors(t *testing.T) {
 	_, err := Get(data, "where.is.this")
 	if _, ok := err.(DoesNotExist); !ok && err != nil {
 		t.Errorf("error retrieving value %v", err)
+	}
+}
+
+func TestNullRemovesKey(t *testing.T) {
+	var payload = map[string]interface{}{
+		"key1": "val1",
+	}
+	err := Set(&payload, "key1", nil)
+	if err != nil {
+		t.Error("error setting a nil value failed", err)
+	}
+
+	_, ok := payload["key1"]
+	if ok {
+		t.Error("nil values assigned with Set should remove the key", err)
+	}
+}
+
+func TestNullSetWithSetKeepNilAsNullKeepKey(t *testing.T) {
+	var payload = map[string]interface{}{
+		"key1": "val1",
+	}
+
+	err := SetKeepNilAsNull(&payload, "key1", nil)
+	if err != nil {
+		t.Error("error setting a nil value failed", err)
+	}
+
+	val, ok := payload["key1"]
+	if !ok {
+		t.Error("nil values assigned with SetKeepNilAsNull should keep the key", err)
+	}
+	if val != nil {
+		t.Error("nil values assigned with SetKeepNilAsNull should set the key to null", err)
 	}
 }

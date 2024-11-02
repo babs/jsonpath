@@ -107,8 +107,16 @@ func Get(data interface{}, path string) (interface{}, error) {
 	return getByTokens(data, tokens)
 }
 
-// Set value on data at that json path
 func Set(data interface{}, path string, value interface{}) error {
+	return set(data, path, value, false)
+}
+
+func SetKeepNilAsNull(data interface{}, path string, value interface{}) error {
+	return set(data, path, value, true)
+}
+
+// Set value on data at that json path
+func set(data interface{}, path string, value interface{}, setNil bool) error {
 	tokens, err := tokenizePath(path)
 	if err != nil {
 		return nil
@@ -118,7 +126,9 @@ func Set(data interface{}, path string, value interface{}) error {
 	last := tokens[len(tokens)-1]
 
 	data = followPtr(data)
-	value = followPtr(value)
+	if value != nil {
+		value = followPtr(value)
+	}
 
 	child := data
 	parent := data
@@ -163,7 +173,12 @@ func Set(data interface{}, path string, value interface{}) error {
 
 	switch reflect.ValueOf(child).Kind() {
 	case reflect.Map:
-		reflect.ValueOf(child).SetMapIndex(reflect.ValueOf(last), reflect.ValueOf(value))
+		if value == nil && setNil {
+			var nilvalue interface{}
+			reflect.ValueOf(child).SetMapIndex(reflect.ValueOf(last), reflect.ValueOf(&nilvalue).Elem())
+		} else {
+			reflect.ValueOf(child).SetMapIndex(reflect.ValueOf(last), reflect.ValueOf(value))
+		}
 		return nil
 	case reflect.Slice:
 		sliceValue := reflect.ValueOf(child)

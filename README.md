@@ -39,6 +39,12 @@ Sets `value` on `data` at that json path
 
 Note: you'll want to pass in a pointer to `data` so that the side effect actually is usable
 
+### jsonpath.SetKeepNilAsNull(data interface{}, path string, value interface{}) (error)
+
+Sets `value` on `data` at that json path while translating `nil` values as `null` instead of removing the key.
+
+Note: you'll want to pass in a pointer to `data` so that the side effect actually is usable
+
 ### jsonpath.DoesNotExist error
 
 Returned by  `jsonpath.Get` on a nonexistent path:
